@@ -92,7 +92,7 @@ Response
 }
 ```
 
-**GET /accounts/<accountid>** - Get the activity for an account
+**GET /accounts/[accountid]** - Get the activity for an account
 
 Inputs: None
 
