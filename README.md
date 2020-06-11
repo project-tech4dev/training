@@ -1,3 +1,5 @@
+# Training
+
 To run this example server 
 
 1. Clone this repo
