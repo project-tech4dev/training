@@ -1,6 +1,3 @@
-# Training
-Example server
-
 To run this example server 
 
 1. Clone this repo
@@ -8,9 +5,24 @@ To run this example server
 3. docker-compose up
 4. Server listens on port 9765
 
+If you get a new pull from the Repo, run the following commands to rebuild and restart the docker services
+
+```json
+> docker-compose down
+> docker-compose up —build
+```
+
 ## API Documentation
 
 **Note:** All balances are in ₹ * 100. E.g., balance of 300000 shows a balance of ₹3000.00. Maintaining balances in paise allows easy calculation of rounding.
+
+Authorization header is required for operations that require authorization. The format of the Auth header is 
+
+```json
+Authorization: Bearer <Token>
+```
+
+Bank Manager already has an account in the system (id: bankmanager, pwd: headhoncho). There are two roles in the system BankManager and User. The Authorization notes below say what roles are permitted to do that operation.
 
 ### Account
 
@@ -23,6 +35,8 @@ userid string
 balance int         *- This is the initial balance to create the account*
 
 Returns: New account id
+
+Authorization: BankManager
 
 Example 
 
@@ -52,6 +66,8 @@ Returns: New balance
 
 Returns an error if the account number doesn't exist 
 
+Authorization: User (account owner)
+
 Example 
 
 ```json
@@ -78,6 +94,8 @@ Returns: New balance
 
 Returns an error if the account number doesn't exist or if there aren't sufficient funds
 
+Authorization: User (account owner)
+
 Example 
 
 ```json
@@ -92,7 +110,7 @@ Response
 }
 ```
 
-**GET /accounts/[accountid]** - Get the activity for an account
+**GET /accounts/`<accountid>`** - Get the activity for an account
 
 Inputs: None
 
@@ -105,6 +123,8 @@ Operations:
 - OB: Original Balance
 - CR: Credit
 - DB: Debit
+
+Authorization: User (account owner) or BankManager
 
 Example 
 
@@ -143,6 +163,8 @@ Response
 Inputs: None
 
 Returns: All the accounts with all their activity
+
+Authorization: BankManager
 
 Example 
 
@@ -229,3 +251,139 @@ Response
   ]
 }
 ```
+
+### Users
+
+**POST /users -** Create User
+
+Inputs: 
+
+fullname string
+
+username string
+
+password string
+
+Returns: ID of the new user
+
+Returns an error if the user name is taken
+
+Authorization: None
+
+Example 
+
+```json
+POST /users
+{
+	"fullname": "O. B. B. G",
+	"username": "obbg",
+	"password": "ppp"
+}
+
+Response
+{
+  "userid": "1000004"
+}
+
+```
+
+**GET /users** - Get a list of all users
+
+Inputs: None
+
+Returns: List of users (id, name, username, createdat, number of accounts) 
+
+Authorization: BankManager
+
+Example 
+
+```json
+GET /users
+
+Response
+{
+  "users": [
+    {
+      "id": "1000002",
+      "fullname": "My Name",
+      "username": "a1003",
+      "createdat": "11 Jun 20 19:10 +0000",
+      "numaccounts": 5
+    },
+    {
+      "id": "1000003",
+      "fullname": "Second User",
+      "username": "a1004",
+      "createdat": "11 Jun 20 19:30 +0000",
+      "numaccounts": 2
+    },
+    {
+      "id": "1000004",
+      "fullname": "O. B. B. G",
+      "username": "obbg",
+      "createdat": "11 Jun 20 20:30 +0000",
+      "numaccounts": 0
+    }
+  ]
+}
+```
+
+**GET /user/`<ID>`** - Get User
+
+Inputs: None
+
+Returns: The user including accounts and account activity 
+
+Returns an error if the user name or password doesn't match
+
+Authorization: User (self) or BankManager
+
+Example 
+
+```json
+GET /user/1000004
+
+Response
+{
+  "user": {
+    "userid": "1000004",
+    "name": "O. B. B. G",
+    "username": "obbg",
+    "password": "xxxxxxxxxxxxxxxxxxxxxxxx",
+    "role": "User",
+    "createdat": "2020-06-11T20:30:18.564486Z",
+    "accounts": []
+  }
+}
+```
+
+**POST /login** - Login
+
+Inputs: 
+
+username string
+
+password string
+
+Returns: ID of the new user and Auth token
+
+Returns an error if the user name or password doesn't match
+
+Authorization: None
+
+Example 
+
+```json
+POST /login
+{
+	"username": "obbg",
+	"password": "ppp"
+}
+
+Response
+{
+  "id": "1000004",
+  "token": "c4289629b08bc4d61411aaa6d6d4a0c3c5f8c1e848e282976e29b6bed5aeedc7"
+}
+```
+
