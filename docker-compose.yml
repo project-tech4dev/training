@@ -1,11 +1,20 @@
 version: "3.7"
 services:
-  goapp:
+  # goapp:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   volumes:
+  #     - ./data:/home/go/app/data:cached
+  #   command: go build
+  #   ports:
+  #     - 9765:9765
+  nodeapp:
     build:
       context: .
       dockerfile: ./Dockerfile
     volumes:
-      - ./data:/home/go/app/data:cached
-    command: go build
+      - ./nodeserver/data:/home/node/app/data:cached
+    command: npm run start
     ports:
       - 9765:9765

@@ -126,7 +126,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request, params httprouter.Para
 
 	var repl = struct {
 		UserID string `json:"id"`
-		Token  string `json:"token"`
+
+		Token string `json:"token"`
 	}{
 		user.ID,
 		hash,
